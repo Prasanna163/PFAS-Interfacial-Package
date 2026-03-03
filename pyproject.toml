@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pfas-interface-knf-cli"
+version = "0.1.0"
+description = "CLI workflow for PFAS adsorption on a water slab with xTB and KNF."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "KNF>=1.0.4",
+]
+
+[project.scripts]
+PFAS = "pfas_interface_cli.cli:main"
+pfas-interface-knf = "pfas_interface_cli.cli:main"
+
+[tool.setuptools]
+py-modules = ["run_pfas_interface_knf"]
+
+[tool.setuptools.packages.find]
+include = ["pfas_interface_cli*"]
