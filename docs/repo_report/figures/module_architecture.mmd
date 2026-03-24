@@ -1,0 +1,41 @@
+﻿flowchart LR
+    subgraph EntryPoints[Entry points]
+        CLI1[PFAS command]
+        CLI2[pfas-interface-knf command]
+        SHIM[run_pfas_interface_knf.py]
+    end
+
+    subgraph Package[pfas_interface_cli package]
+        CLI[cli.py]
+        WF[workflow.py]
+        GEO[geometry.py]
+        PLC[placement.py]
+        XTB[xtb.py]
+        KNF[knf.py]
+        ANL[analysis.py]
+        REP[reporting.py]
+    end
+
+    CLI1 --> CLI
+    CLI2 --> WF
+    SHIM --> WF
+    CLI --> WF
+
+    WF --> GEO
+    WF --> PLC
+    WF --> XTB
+    WF --> KNF
+    WF --> ANL
+    WF --> REP
+
+    PLC --> GEO
+    XTB --> GEO
+    ANL --> GEO
+
+    subgraph External[External engines]
+        XTBEXE[xTB executable]
+        KNFCORE[knf_core.pipeline]
+    end
+
+    XTB --> XTBEXE
+    KNF --> KNFCORE

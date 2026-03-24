@@ -1,0 +1,22 @@
+﻿flowchart LR
+    A[Optimized PFAS geometry] --> B[KNF context K1: gas]
+    A --> C[KNF context K2: water-enabled molecule]
+    D[Optimized PFAS-slab interface geometry] --> E[KNF context K3: interface]
+
+    B --> F[SNCI, SCDI, SCDI variance, f1..f9]
+    C --> G[SNCI, SCDI, SCDI variance, f1..f9]
+    E --> H[SNCI, SCDI, SCDI variance, f1..f9]
+
+    F --> I[Delta X_W-G]
+    G --> I
+    F --> J[Delta X_I-G]
+    H --> J
+    G --> K[Delta X_I-W]
+    H --> K
+
+    L[xTB energies: E_slab, E_PFAS, E_interface] --> M[Delta E_ads]
+    M --> N[Delta Delta E = E_parallel - E_perpendicular]
+    I --> O[Banding and interpretation]
+    J --> O
+    K --> O
+    N --> O

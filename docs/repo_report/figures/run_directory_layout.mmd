@@ -1,0 +1,34 @@
+﻿flowchart TD
+    R[pipeline_runs/run_name]
+    R --> S1[01_slab_sort]
+    R --> S2[02_slab_opt]
+    R --> S3[03_pfas_opt]
+    R --> S4[04_perpendicular]
+    R --> S5[05_parallel]
+    R --> S6[06_knf_pfas]
+    R --> S7[summary.json]
+    R --> S8[summary.txt]
+
+    S1 --> S1a[slab_sorted.xyz]
+    S2 --> S2a[xtbopt.xyz]
+    S2 --> S2b[xtb_run.log]
+    S3 --> S3a[xtbopt.xyz]
+    S3 --> S3b[xtb_run.log]
+
+    S4 --> P1[01_merge]
+    S4 --> P2[02_interface_opt]
+    S4 --> P3[03_knf_interface]
+
+    S5 --> Q1[01_merge]
+    S5 --> Q2[02_interface_opt]
+    S5 --> Q3[03_knf_interface]
+
+    P1 --> P1a[pfas_perpendicular_on_slab.xyz]
+    P2 --> P2a[xtbopt.xyz]
+    P3 --> P3a[knf.json]
+
+    Q1 --> Q1a[pfas_parallel_on_slab.xyz]
+    Q2 --> Q2a[xtbopt.xyz]
+    Q3 --> Q3a[knf.json]
+
+    S6 --> S6a[knf.json]
