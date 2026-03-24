@@ -14,7 +14,7 @@ dependencies = [
 
 [project.scripts]
 PFAS = "pfas_interface_cli.cli:main"
-pfas-interface-knf = "pfas_interface_cli.cli:main"
+pfas-interface-knf = "pfas_interface_cli.workflow:main"
 
 [tool.setuptools]
 py-modules = ["run_pfas_interface_knf"]
