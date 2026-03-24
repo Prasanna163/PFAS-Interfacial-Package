@@ -1,27 +1,14 @@
-﻿flowchart TD
-    A[Start PFAS CLI invocation] --> B[Resolve slab and PFAS inputs]
-    B --> C[Step 1 sort water slab by oxygen z]
-    C --> D[Step 2 xtb optimize slab]
-    D --> E[Step 3 xtb optimize PFAS]
-    E --> F[Step 4 KNF on optimized PFAS]
-    F --> G{Orientation mode}
+﻿flowchart TB
+    A[Input and validation<br/>resolve slab and PFAS paths]
+    A --> B[Slab preprocessing<br/>sort waters by oxygen z]
+    B --> C[Reference optimizations<br/>xtb optimize slab and PFAS]
+    C --> D[PFAS KNF reference<br/>run KNF on optimized PFAS]
+    D --> E{Orientation mode}
 
-    G -->|perpendicular| H1[Place PFAS perpendicular]
-    G -->|parallel| H2[Place PFAS parallel]
-    G -->|dual| H1
-    G -->|dual| H2
+    E --> F[Perpendicular branch<br/>place PFAS -> xtb interface<br/>geometry analysis -> KNF]
+    E --> G[Parallel branch<br/>place PFAS -> xtb interface<br/>geometry analysis -> KNF]
 
-    H1 --> I1[xtb optimize interface perpendicular]
-    H2 --> I2[xtb optimize interface parallel]
-
-    I1 --> J1[Geometry analysis]
-    I2 --> J2[Geometry analysis]
-
-    J1 --> K1[KNF on interface]
-    J2 --> K2[KNF on interface]
-
-    K1 --> L[Compute energies and KNF deltas]
-    K2 --> L
-    L --> M[Pick preferred orientation by minimum Delta E ads]
-    M --> N[Write summary json and summary txt]
-    N --> O[End]
+    F --> H[Aggregate branch metrics<br/>Delta E ads and KNF deltas]
+    G --> H
+    H --> I[Select preferred orientation]
+    I --> J[Write summary json and summary txt]
