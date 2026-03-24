@@ -21,8 +21,9 @@ The repository includes the reusable optimized slab master:
 
 Project layout highlights:
 
-- `pfas_interface_cli/` -> installed CLI package
-- `run_pfas_interface_knf.py` -> core workflow engine
+- `pfas_interface_cli/` -> installed CLI package and workflow modules:
+  `workflow.py`, `geometry.py`, `xtb.py`, `placement.py`, `analysis.py`, `reporting.py`, `knf.py`
+- `run_pfas_interface_knf.py` -> compatibility shim that calls `pfas_interface_cli.workflow`
 - `references/` -> reusable slab templates
 - `tools/` -> helper and analysis scripts
 - `examples/` -> sample input files (`slab.xyz`, `slab.mol`)

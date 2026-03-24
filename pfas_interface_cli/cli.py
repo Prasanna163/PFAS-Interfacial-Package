@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from run_pfas_interface_knf import main as workflow_main
+from .workflow import main as workflow_main
 
 ALLOWED_EXTENSIONS = {".xyz", ".mol", ".sdf", ".mol2"}
 MASTER_SLAB_FILENAME = "master_slab_xtbopt.xyz"
