@@ -5,8 +5,13 @@ import pandas as pd
 from rdkit import Chem
 
 
-ROOT = Path(__file__).resolve().parent
-RAW_DIR = ROOT / "Raw data"
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+
+# Prefer project-level data but keep tool-local fallback for portability.
+RAW_DIR = PROJECT_ROOT / "Raw data"
+if not RAW_DIR.exists():
+    RAW_DIR = SCRIPT_DIR / "Raw data"
 SOURCE_CSV = RAW_DIR / "pmc6374777_table1.csv"
 OUTPUT_CSV = RAW_DIR / "unified_pfas_ki_smiles.csv"
 
