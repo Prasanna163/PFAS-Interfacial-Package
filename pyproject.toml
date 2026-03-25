@@ -12,6 +12,11 @@ dependencies = [
   "KNF>=1.0.4",
 ]
 
+[project.optional-dependencies]
+slab-builder = [
+  "rdkit",
+]
+
 [project.scripts]
 PFAS = "pfas_interface_cli.cli:main"
 pfas-interface-knf = "pfas_interface_cli.workflow:main"

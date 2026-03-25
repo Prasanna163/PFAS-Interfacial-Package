@@ -37,6 +37,12 @@ From this folder:
 python -m pip install -e .
 ```
 
+If you want custom slab generation (`--create-custom-slab`), install with the optional RDKit extra:
+
+```powershell
+python -m pip install -e ".[slab-builder]"
+```
+
 ## CLI
 
 Primary command:
@@ -71,6 +77,45 @@ Example with charge:
 PFAS ".\molecules\PFOS.xyz" --pfas-charge -1
 ```
 
+Interactive mode (arrow-key UI with Enter to select):
+
+```powershell
+PFAS --interactive
+```
+
+In interactive mode, you can:
+
+- run the PFAS workflow
+- select the current default slab
+- choose a discovered preoptimized slab
+- build a custom slab from dimensions and optimize it with xTB
+
+Preoptimized slab discovery:
+
+```powershell
+PFAS --list-preoptimized-slabs
+```
+
+Use a discovered preoptimized slab by name:
+
+```powershell
+PFAS ".\molecules\PFOA.xyz" --preoptimized-slab reference-master
+```
+
+Build a custom slab from user dimensions (RDKit) and optimize it (xTB):
+
+```powershell
+PFAS --create-custom-slab --custom-slab-only --custom-slab-x 24 --custom-slab-y 24 --custom-slab-z 12
+```
+
+Build and immediately use the new slab in a workflow run:
+
+```powershell
+PFAS ".\molecules\PFOA.xyz" --create-custom-slab --custom-slab-x 24 --custom-slab-y 24 --custom-slab-z 12
+```
+
+By default, a custom optimized slab is copied to `.\master_slab_xtbopt.xyz` and becomes the default slab for later runs in that folder. Use `--no-set-custom-slab-default` to skip that copy.
+
 Advanced options are available as a second layer when needed (for reproducibility sweeps/tuning):
 
 - `--run-root`, `--run-name`
@@ -97,4 +142,5 @@ pfas-interface-knf .\examples\slab.xyz ".\molecules\PFOA.xyz"
 
 - `xtb` must be available on `PATH`.
 - The local KNF installation must be working.
+- RDKit is required only for `--create-custom-slab` (or custom slab creation in `--interactive` mode).
 - KNF runs its single-point/NCI stage on the final optimized geometry; the workflow avoids KNF geometry reoptimization.
