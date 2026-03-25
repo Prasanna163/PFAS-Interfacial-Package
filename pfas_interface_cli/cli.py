@@ -3,7 +3,14 @@ import re
 from pathlib import Path
 
 from .interactive import choose_option, ensure_interactive_terminal, prompt_float, prompt_int, prompt_text
-from .slab_builder import DEFAULT_CUSTOM_SLAB_WORKDIR, build_optimize_custom_slab
+from .slab_builder import (
+    DEFAULT_CUSTOM_SLAB_WORKDIR,
+    MAX_SAFE_WATER_COUNT,
+    MIN_SAFE_SPACING_XY,
+    MIN_SAFE_SPACING_Z,
+    build_optimize_custom_slab,
+    validate_custom_slab_parameters,
+)
 from .workflow import main as workflow_main
 
 ALLOWED_EXTENSIONS = {".xyz", ".mol", ".sdf", ".mol2"}
@@ -122,12 +129,12 @@ def _configure_custom_slab_from_prompts(args):
     args.custom_slab_spacing_xy = prompt_float(
         "Water spacing in XY (angstrom)",
         default=args.custom_slab_spacing_xy,
-        min_value=0.1,
+        min_value=MIN_SAFE_SPACING_XY,
     )
     args.custom_slab_spacing_z = prompt_float(
         "Layer spacing in Z (angstrom)",
         default=args.custom_slab_spacing_z,
-        min_value=0.1,
+        min_value=MIN_SAFE_SPACING_Z,
     )
     args.custom_slab_workdir = prompt_text(
         "Custom slab working directory",
@@ -286,13 +293,19 @@ def build_parser():
         "--custom-slab-spacing-xy",
         type=float,
         default=3.1,
-        help="Custom slab water spacing in XY (angstrom, default: 3.1).",
+        help=(
+            "Custom slab water spacing in XY "
+            f"(angstrom, default: 3.1, minimum recommended: {MIN_SAFE_SPACING_XY:.1f})."
+        ),
     )
     parser.add_argument(
         "--custom-slab-spacing-z",
         type=float,
         default=2.9,
-        help="Custom slab water-layer spacing in Z (angstrom, default: 2.9).",
+        help=(
+            "Custom slab water-layer spacing in Z "
+            f"(angstrom, default: 2.9, minimum recommended: {MIN_SAFE_SPACING_Z:.1f})."
+        ),
     )
     parser.add_argument(
         "--custom-slab-workdir",
@@ -361,6 +374,13 @@ def main(argv=None):
         if not args.no_set_custom_slab_default:
             default_target = Path.cwd() / MASTER_SLAB_FILENAME
         try:
+            grid_preview = validate_custom_slab_parameters(
+                length_x=args.custom_slab_x,
+                length_y=args.custom_slab_y,
+                length_z=args.custom_slab_z,
+                spacing_xy=args.custom_slab_spacing_xy,
+                spacing_z=args.custom_slab_spacing_z,
+            )
             custom_slab_result = build_optimize_custom_slab(
                 work_root=args.custom_slab_workdir,
                 length_x=args.custom_slab_x,
@@ -371,9 +391,18 @@ def main(argv=None):
                 gfn=args.gfn,
                 default_slab_path=default_target,
             )
+        except ValueError as exc:
+            raise ValueError(
+                "Invalid custom slab settings. "
+                f"{exc} "
+                f"(Safety limit: max waters={MAX_SAFE_WATER_COUNT})."
+            ) from exc
         except Exception as exc:
             raise RuntimeError(
-                "Custom slab generation failed. Ensure RDKit is installed and xTB runs correctly."
+                "Custom slab generation failed after validation. "
+                f"Attempted grid: nx={grid_preview['nx']}, ny={grid_preview['ny']}, nz={grid_preview['nz']} "
+                f"({grid_preview['water_count']} waters, {grid_preview['atom_count']} atoms). "
+                "Ensure RDKit is installed and xTB runs correctly."
             ) from exc
         slab_path = Path(
             custom_slab_result["default_slab_path"] or custom_slab_result["optimized_xyz"]

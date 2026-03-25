@@ -8,6 +8,9 @@ from .xtb import optimize_with_xtb
 
 
 DEFAULT_CUSTOM_SLAB_WORKDIR = "slab_library/custom_builds"
+MIN_SAFE_SPACING_XY = 2.2
+MIN_SAFE_SPACING_Z = 2.0
+MAX_SAFE_WATER_COUNT = 600
 
 
 def _load_rdkit():
@@ -65,7 +68,7 @@ def _grid_count(length, spacing):
     return max(1, int(math.ceil(length / spacing)))
 
 
-def generate_water_slab_atoms(length_x, length_y, length_z, spacing_xy=3.1, spacing_z=2.9):
+def validate_custom_slab_parameters(length_x, length_y, length_z, spacing_xy=3.1, spacing_z=2.9):
     if min(length_x, length_y, length_z) <= 0.0:
         raise ValueError("Custom slab dimensions must be positive.")
     if spacing_xy <= 0.0 or spacing_z <= 0.0:
@@ -74,6 +77,37 @@ def generate_water_slab_atoms(length_x, length_y, length_z, spacing_xy=3.1, spac
     nx = _grid_count(length_x, spacing_xy)
     ny = _grid_count(length_y, spacing_xy)
     nz = _grid_count(length_z, spacing_z)
+    water_count = nx * ny * nz
+    atom_count = water_count * 3
+
+    if spacing_xy < MIN_SAFE_SPACING_XY or spacing_z < MIN_SAFE_SPACING_Z:
+        raise ValueError(
+            "Custom slab spacing is too tight for stable xTB optimization. "
+            f"Use spacing_xy >= {MIN_SAFE_SPACING_XY:.1f} A and spacing_z >= {MIN_SAFE_SPACING_Z:.1f} A. "
+            f"Received spacing_xy={spacing_xy:.3f} A, spacing_z={spacing_z:.3f} A."
+        )
+
+    if water_count > MAX_SAFE_WATER_COUNT:
+        raise ValueError(
+            "Custom slab is too large for reliable xTB runs in this workflow. "
+            f"Estimated waters={water_count} ({atom_count} atoms), recommended max waters={MAX_SAFE_WATER_COUNT}. "
+            "Increase spacing or reduce slab dimensions."
+        )
+
+    return {"nx": nx, "ny": ny, "nz": nz, "water_count": water_count, "atom_count": atom_count}
+
+
+def generate_water_slab_atoms(length_x, length_y, length_z, spacing_xy=3.1, spacing_z=2.9):
+    grid = validate_custom_slab_parameters(
+        length_x=length_x,
+        length_y=length_y,
+        length_z=length_z,
+        spacing_xy=spacing_xy,
+        spacing_z=spacing_z,
+    )
+    nx = grid["nx"]
+    ny = grid["ny"]
+    nz = grid["nz"]
     water_template = _water_template_atoms()
     atoms = []
     for iz in range(nz):
@@ -94,7 +128,7 @@ def generate_water_slab_atoms(length_x, length_y, length_z, spacing_xy=3.1, spac
                             "z": rz + z_shift,
                         }
                     )
-    return atoms, {"nx": nx, "ny": ny, "nz": nz, "water_count": nx * ny * nz}
+    return atoms, grid
 
 
 def write_custom_slab_xyz(
@@ -176,7 +210,11 @@ def build_optimize_custom_slab(
 
 __all__ = [
     "DEFAULT_CUSTOM_SLAB_WORKDIR",
+    "MAX_SAFE_WATER_COUNT",
+    "MIN_SAFE_SPACING_XY",
+    "MIN_SAFE_SPACING_Z",
     "build_optimize_custom_slab",
     "generate_water_slab_atoms",
+    "validate_custom_slab_parameters",
     "write_custom_slab_xyz",
 ]

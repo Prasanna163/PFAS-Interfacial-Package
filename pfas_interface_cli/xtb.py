@@ -28,7 +28,21 @@ def run_command(command, cwd, log_path):
             check=False,
         )
     if result.returncode != 0:
-        raise RuntimeError(f"Command failed with exit code {result.returncode}: {' '.join(command)}")
+        hint = ""
+        if result.returncode in {3221225725, -1073741571}:
+            hint = (
+                " xTB terminated with STATUS_STACK_OVERFLOW. "
+                "This is often caused by an overly large/dense system on Windows."
+            )
+        elif result.returncode in {3221225477, -1073741819}:
+            hint = (
+                " xTB terminated with STATUS_ACCESS_VIOLATION, often linked to unstable input geometry "
+                "or insufficient resources."
+            )
+        raise RuntimeError(
+            f"Command failed with exit code {result.returncode}: {' '.join(command)}. "
+            f"See log: {log_path}.{hint}"
+        )
 
 
 def optimize_with_xtb(input_xyz, work_dir, charge=0, multiplicity=1, gfn=2):

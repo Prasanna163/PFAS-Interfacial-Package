@@ -116,6 +116,12 @@ PFAS ".\molecules\PFOA.xyz" --create-custom-slab --custom-slab-x 24 --custom-sla
 
 By default, a custom optimized slab is copied to `.\master_slab_xtbopt.xyz` and becomes the default slab for later runs in that folder. Use `--no-set-custom-slab-default` to skip that copy.
 
+Custom slab safety checks:
+
+- `--custom-slab-spacing-xy` should be at least `2.2` A
+- `--custom-slab-spacing-z` should be at least `2.0` A
+- custom slab size is capped at `600` waters (`1800` atoms) for reliable xTB runs
+
 Advanced options are available as a second layer when needed (for reproducibility sweeps/tuning):
 
 - `--run-root`, `--run-name`
